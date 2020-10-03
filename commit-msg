@@ -2,10 +2,13 @@
 
 require 'net/http'
 
+#todo: uncomment these two lines before copying to .git/hooks folder
 # message_file = ARGV[0]
 # message = File.read(message_file)
 
-message = 'ref: 144 - this is a commit msg'
+#todo: comment this line before copying to .git/hooks folder
+message = 'ref: 999944 - this is a commit msg'
+
 
 $regex = /^(ref|feat|fix|chore): (\d+)/
 
@@ -18,7 +21,7 @@ if !caught
   exit 1
 end
 
-puts "found match: #{caught}"
+puts "Your message is formatted correctly with pattern match: #{caught}"
 tkt_nbr = caught[-1]
 
 puts "found ticket number: #{tkt_nbr}"
@@ -34,13 +37,12 @@ config = YAML.load_file("#{repo_root}/git-hook-config.yml")   # yml => hash
 
 kan_url = config['kan_url_root'] + config['kan_api_get_task_details']
 
-puts "calling Kanbanize API: #{kan_url}"
+puts "Checking ticket #{tkt_nbr}: calling Kanbanize API: #{kan_url}"
 
 uri = URI(kan_url)
 req = Net::HTTP::Post.new(uri)
 req['Content-Type'] = 'application/json'
 req['Accept'] = 'application/json'
-
 
 # try env var first for api key
 apikey = ENV[config['env_var_kan_api_key_name']]
@@ -53,14 +55,14 @@ unless apikey
   end
 end
 unless apikey
-  puts "Kanbanize API access key not found, cannot verify ticket number"
+  puts "Error: Kanbanize API access key not found!"
   exit 1
 end
 
 req['apikey'] = apikey
 
 req.body = {
-    :taskid => tkt_nbr   #todo: input variable it should be!
+    :taskid => tkt_nbr
 }.to_json()
 
 res = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => true) {|http|
@@ -68,7 +70,8 @@ res = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => true) {|http|
 }
 
 if res.code != '200'
-    puts 'error!!'
+  puts "Checking ticket #{tkt_nbr} failed with error: #{res.body || 'Unknown'}"
+  exit 1
 end
 
 rb = JSON.parse(res.body)
@@ -80,5 +83,6 @@ puts "adding ticket web url to message:#{tkt_web_url_msg}"
 
 message += tkt_web_url_msg
 
+#todo: uncomment this line before copying to .git/hooks folder
 # File.write(message_file, message)
 
