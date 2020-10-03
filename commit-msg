@@ -1,0 +1,84 @@
+#!/usr/bin/env ruby
+
+require 'net/http'
+
+# message_file = ARGV[0]
+# message = File.read(message_file)
+
+message = 'ref: 144 - this is a commit msg'
+
+$regex = /^(ref|feat|fix|chore): (\d+)/
+
+caught = $regex.match(message)
+
+if !caught
+  puts "[POLICY] Your message is not formatted correctly"
+  puts "Allowed commit message SHOULD begin with:"
+  puts "ref/feat/fix/chore, then followed by ':' then a ticket number, then message"
+  exit 1
+end
+
+puts "found match: #{caught}"
+tkt_nbr = caught[-1]
+
+puts "found ticket number: #{tkt_nbr}"
+
+require 'net/http'
+require 'json'
+require 'yaml'
+
+# get repo root folder path
+repo_root = `git rev-parse --show-toplevel`.chomp  # remove trailing newline
+
+config = YAML.load_file("#{repo_root}/git-hook-config.yml")   # yml => hash
+
+kan_url = config['kan_url_root'] + config['kan_api_get_task_details']
+
+puts "calling Kanbanize API: #{kan_url}"
+
+uri = URI(kan_url)
+req = Net::HTTP::Post.new(uri)
+req['Content-Type'] = 'application/json'
+req['Accept'] = 'application/json'
+
+
+# try env var first for api key
+apikey = ENV[config['env_var_kan_api_key_name']]
+
+unless apikey
+  puts "#{repo_root}/.secrets"
+  secret = YAML.load_file("#{repo_root}/.secrets")
+  if secret
+    apikey = secret['apikey']
+  end
+end
+unless apikey
+  puts "Kanbanize API access key not found, cannot verify ticket number"
+  exit 1
+end
+
+req['apikey'] = apikey
+
+req.body = {
+    :taskid => tkt_nbr   #todo: input variable it should be!
+}.to_json()
+
+res = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => true) {|http|
+  http.request(req)
+}
+
+if res.code != '200'
+    puts 'error!!'
+end
+
+rb = JSON.parse(res.body)
+
+kan_task_web_url = "https://bera.kanbanize.com/ctrl_board/#{rb['boardid']}/cards/#{rb['taskid']}/details/"
+
+tkt_web_url_msg = "\nKanbanize Ticket #{tkt_nbr} URL: #{kan_task_web_url}\n"
+puts "adding ticket web url to message:#{tkt_web_url_msg}"
+
+message += tkt_web_url_msg
+
+# File.write(message_file, message)
+
