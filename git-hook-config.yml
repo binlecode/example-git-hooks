@@ -1,4 +1,5 @@
 
+# kanbanize API settings
 kan_api_url: https://<domain>.kanbanize.com/index.php/api/kanbanize/
 kan_api_auth: login/
 kan_api_projects_and_boards: get_projects_and_boards/
