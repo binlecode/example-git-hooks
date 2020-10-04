@@ -32,10 +32,10 @@ the hook file is written in ruby but file should be without an extension to foll
 
 ## pre-commit hook processing logic
 
-TODO:
-- check current branch is not main or master branch
-- check current branch name conforms to a defined naming pattern
+A common use case of pre-commit hook is checking if current branch is not main or master.
 
+TODO:
+- check current branch name conforms to a defined naming pattern
 
 ## ref - semantic release
 
