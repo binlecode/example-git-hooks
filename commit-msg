@@ -1,23 +1,33 @@
 #!/usr/bin/env ruby
 
 require 'net/http'
+require 'json'
+require 'yaml'
 
-#todo: uncomment these two lines before copying to .git/hooks folder
-# message_file = ARGV[0]
-# message = File.read(message_file)
+message_file = ARGV[0]
+message = File.read(message_file) if message_file
 
-#todo: comment this line before copying to .git/hooks folder
-message = 'ref: 999944 - this is a commit msg'
+#todo: needs a better way to switch hook mode and test mode (no message_file)
+unless message
+  # this is for debug/test only
+  message = YAML.load_file('./fixture.yml')['commit_msg']
+  puts "loading testing msg: #{message}"
+end
 
 
-$regex = /^(ref|feat|fix|chore): (\d+)/
+#todo: make these prefix (type) options externalized and reconfigurable
+#todo: follow types in: https://github.com/conventional-changelog/commitlint
+#todo: make regex pattern externalized and reconfigurable
+$regex = /^(ref|feat|fix|chore|docs): (\d+)/
+# $regex = /^(ref|feat|fix|chore|docs): KAN-(\d+)/
 
 caught = $regex.match(message)
 
 if !caught
+  #todo: need better validation message here
   puts "[POLICY] Your message is not formatted correctly"
   puts "Allowed commit message SHOULD begin with:"
-  puts "ref/feat/fix/chore, then followed by ':' then a ticket number, then message"
+  puts "ref,feat,fix,chore, or docs, followed by ':' then a ticket number, then message"
   exit 1
 end
 
@@ -26,16 +36,28 @@ tkt_nbr = caught[-1]
 
 puts "found ticket number: #{tkt_nbr}"
 
-require 'net/http'
-require 'json'
-require 'yaml'
 
 # get repo root folder path
 repo_root = `git rev-parse --show-toplevel`.chomp  # remove trailing newline
 
+# config file should exist
 config = YAML.load_file("#{repo_root}/git-hook-config.yml")   # yml => hash
 
-kan_url = config['kan_url_root'] + config['kan_api_get_task_details']
+# secrets file is optional, env vars can be used instead
+secret = YAML.load_file("#{repo_root}/git-hook-secret")
+
+domain = ENV[config['env_var_kan_api_domain_name']]
+unless domain
+  if secret
+    domain = secret['domain']
+  end
+end
+unless domain
+  puts 'domain not found for Kanbanize API'
+  exit 1
+end
+
+kan_url = config['kan_api_url'].sub('<domain>', domain) + config['kan_api_get_task_details']
 
 puts "Checking ticket #{tkt_nbr}: calling Kanbanize API: #{kan_url}"
 
@@ -48,8 +70,7 @@ req['Accept'] = 'application/json'
 apikey = ENV[config['env_var_kan_api_key_name']]
 
 unless apikey
-  puts "#{repo_root}/.secrets"
-  secret = YAML.load_file("#{repo_root}/.secrets")
+  
   if secret
     apikey = secret['apikey']
   end
@@ -65,7 +86,9 @@ req.body = {
     :taskid => tkt_nbr
 }.to_json()
 
-res = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => true) {|http|
+res = Net::HTTP.start(uri.hostname, 
+                      uri.port, 
+                      :use_ssl => uri.scheme == 'https') { |http|
   http.request(req)
 }
 
@@ -74,15 +97,24 @@ if res.code != '200'
   exit 1
 end
 
+# at this point the kanbancize task check is successful
+
+#todo: besides appending web url to commit message,
+#todo: consider other 'call-back' functions like:
+#todo: - post commit message to kanbanize taks as comment 
+#todo: - look for CHANGELOG.md and add semantic version
+
 rb = JSON.parse(res.body)
 
-kan_task_web_url = "https://bera.kanbanize.com/ctrl_board/#{rb['boardid']}/cards/#{rb['taskid']}/details/"
+kan_task_web_url = config['kan_web_url_task']
+    .sub('<domain>', domain)
+    .sub('<boardid>', rb['boardid'])
+    .sub('<taskid>', rb['taskid'])
 
 tkt_web_url_msg = "\nKanbanize Ticket #{tkt_nbr} URL: #{kan_task_web_url}\n"
-puts "adding ticket web url to message:#{tkt_web_url_msg}"
+puts "Appending web url to message:#{tkt_web_url_msg}"
 
-message += tkt_web_url_msg
+File.write(message_file, message + tkt_web_url_msg) if message_file
 
-#todo: uncomment this line before copying to .git/hooks folder
-# File.write(message_file, message)
-
+puts "Message saved."
+puts '*' * 20 + ' commit-msg hook complete ' + '*' * 20

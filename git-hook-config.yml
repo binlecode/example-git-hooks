@@ -1,8 +1,11 @@
 
-kan_url_root: https://bera.kanbanize.com/index.php/api/kanbanize/
+kan_api_url: https://<domain>.kanbanize.com/index.php/api/kanbanize/
 kan_api_auth: login/
 kan_api_projects_and_boards: get_projects_and_boards/
 kan_api_get_task_details: get_task_details/
 
-#
+kan_web_url_task: https://<domain>.kanbanize.com/ctrl_board/<boardid>/cards/<taskid>/details/
+
+# set env var key names for sensitive settings
 env_var_kan_api_key_name: KAN_API_KEY
+env_var_kan_api_domain_name: KAN_API_DOMAIN
