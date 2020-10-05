@@ -1,5 +1,29 @@
 
 
+
+## install git hooks
+
+```bash
+install_hooks <target-repo-folder-path>
+```
+
+## remove git hooks
+
+```bash
+install_hooks --remove <target-repo-folder-path>
+```
+
+The `--remove` option enables deletion of all installed (copied) hooks.
+
+
+## supported git hooks
+
+- pre-commit hook to prevent commiting to main or master branch
+- commit-msg hook for kanbanize task validation and info fetch
+- 
+
+
+
 ## client side commit message check
 
 The fact that users' commit pushes are rejected due to bad commit message format (thus having their carefully crafted work rejected at the last minute) can be **extremely** frustrating and confusing.
@@ -18,8 +42,6 @@ For exmaple, a commit message check hook script `the commit-msg` file will need 
 the hook file is written in ruby but file should be without an extension to follow git hook file execution logic.
 
 "ref/feat/fix/chore then followed by ':' then a ticket number, then message"
-
-
 
 
 ## comment-msg kanbanize hook processing logic
