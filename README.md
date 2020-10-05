@@ -22,12 +22,15 @@ the hook file is written in ruby but file should be without an extension to foll
 
 
 
-## comment-msg hook processing logic
-
+## comment-msg kanbanize hook processing logic
 
 1. extract kan ticket number from legal commit msg, if extraction fail, commit fail
 2. make an api call to kanbanize api with ticket number, if not 200, commit fail
 3. if kanbanize task check confirmed by ticket number, construct a kanban web access (slug) url and append to the commit message
+
+Supported environment variables
+- `KAN_API_KEY`: kanbanize API auth key
+- `KAN_API_DOMAIN`: kanbanize portal domain, eg: `<your-domain>.kanbanize.com/..`
 
 
 ## pre-commit hook processing logic
