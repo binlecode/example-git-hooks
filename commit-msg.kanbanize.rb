@@ -7,7 +7,12 @@ require 'yaml'
 
 def prompt(*args)
   print(*args)
-  gets
+  # gets
+  # in a non-tty terminal environment, STDIN.gets is not waiting for key input
+  f = File.open('/dev/tty')
+  keyin = (f.gets).chomp
+  f.close
+  keyin
 end
 
 def post_kan_api(kan_url, apikey, params = {})
