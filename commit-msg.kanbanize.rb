@@ -85,14 +85,14 @@ end
 
 
 # get repo root folder path
-# repo_root = `git rev-parse --show-toplevel`.chomp  # remove trailing newline
+repo_root = `git rev-parse --show-toplevel`.chomp  # remove trailing newline
 
 # config file should exist
 unless File.exists? "./commit-msg.config"
   puts 'Error: kanbanize hook config file not found'
   exit 1
 end
-config = YAML.load_file("./commit-msg.config")   # yml => hash
+config = YAML.load_file("#{repo_root}/.git/hooks/commit-msg.config")   # yml => hash
 
 
 
