@@ -20,7 +20,6 @@ The `--remove` option enables deletion of all installed (copied) hooks.
 
 - pre-commit hook to prevent commiting to main or master branch
 - commit-msg hook for kanbanize task validation and info fetch
-- 
 
 
 
