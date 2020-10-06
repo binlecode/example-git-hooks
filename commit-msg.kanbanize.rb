@@ -7,7 +7,12 @@ require 'yaml'
 
 def prompt(*args)
   print(*args)
-  gets
+  # gets
+  # in a non-tty terminal environment, STDIN.gets is not waiting for key input
+  f = File.open('/dev/tty')
+  keyin = (f.gets).chomp
+  f.close
+  keyin
 end
 
 def post_kan_api(kan_url, apikey, params = {})
@@ -85,14 +90,15 @@ end
 
 
 # get repo root folder path
-# repo_root = `git rev-parse --show-toplevel`.chomp  # remove trailing newline
+repo_root = `git rev-parse --show-toplevel`.chomp  # remove trailing newline
 
 # config file should exist
-unless File.exists? "./commit-msg.config"
+CONFIG_FILE = File.join(repo_root, '.git', 'hooks', 'commit-msg.config')
+unless File.exists? CONFIG_FILE
   puts 'Error: kanbanize hook config file not found'
   exit 1
 end
-config = YAML.load_file("./commit-msg.config")   # yml => hash
+config = YAML.load_file(CONFIG_FILE)   # yml => hash
 
 
 
@@ -120,7 +126,7 @@ puts "found ticket number: #{tkt_nbr}"
 ## ** initialize secret for domain and api key
 
 # secret file should exist
-SECRET_FILE = './commit-msg.secret'
+SECRET_FILE = File.join(repo_root, '.git', 'hooks', 'commit-msg.secret')
 if File.exists? SECRET_FILE
   secret = YAML.load_file(SECRET_FILE)
   puts '>> secret: ' + secret.inspect
