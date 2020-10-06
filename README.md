@@ -65,6 +65,24 @@ TODO:
 
 https://github.com/semantic-release/semantic-release
 
+
+## implementation notes:
+
+### non-tty terminal prompt for interactive user input
+
+Ruby `STDIN.gets` doesn't pause for user input in a non-tty terminal environment.
+This is likely a case when there's a terminal opened from an IDE like VS Code or IDEA.
+
+Therefore, we use a file handler instead of STDIN to take `/dev/tty`, 
+for example, like below:
+
+```ruby
+file = File.open("/dev/tty")
+line = file.gets
+p line
+```
+
+
 ## appendix - useful hooks
 
 pre-commit - This hook is called before obtaining the proposed commit message.
