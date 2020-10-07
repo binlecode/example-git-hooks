@@ -85,23 +85,64 @@ p line
 
 ## appendix - useful hooks
 
-pre-commit - This hook is called before obtaining the proposed commit message.
+Every Git repository has a .git/hooks folder with a script for each hook you can bind to.
+This is the [official git hooks doc](https://www.git-scm.com/docs/githooks).
 
-prepare-commit-msg - Called after receiving the default commit message, just prior to firing up the commit message editor.
+Hooks are either placed on client (local) side or server (remote) side.
 
-commit-msg - Can be used to adjust the message after it has been edited in order to ensure conformity to a standard or to reject based on any criteria.
+Some useful hooks are listed below.
 
-pre-push - Called prior to a push to a remote. In addition to the parameters, additional information, separated by a space is passed in through stdin in the form of <local ref> <local sha1> <remote ref> <remote sha1>.
+### pre-commit
 
-pre-auto-gc - Is used to do some checks before automatically cleaning repos.
+This hook is called before obtaining the proposed commit message.
 
-pre-rebase - Called when rebasing a branch. Mainly used to halt the rebase if it is not desirable.
+It is ideal for syntax checkers, linters, and other checks that you want to run before you allow a commit to even be created.
 
-applypatch-msg - Can edit the commit message file and is often used to verify or actively format a patch's message to a project's standards.
+### prepare-commit-msg
 
-pre-receive - This is called on the remote repo just before updating the pushed refs.
+Called after receiving the default commit message, just prior to firing up the commit message editor.
 
-post-receive - This is run on the remote when pushing after the all refs have been updated. It does not take parameters, but receives info through stdin in the form of <old-value> <new-value> <ref-name>.
+### commit-msg
 
-post-rewrite - This is called when git commands are rewriting already committed data.
+Can be used to adjust the message after it has been edited in order to ensure conformity to a standard or to reject based on any criteria.
+
+This is a commonly used hook to append additonal information to the commit message.
+
+### post-commit
+
+Can be used to run some event call back logic such as
+email/SMS team members of a new commit.
+
+### pre-push
+
+Called prior to a push to a remote. In addition to the parameters, additional information, separated by a space is passed in through stdin in the form of:
+`<local ref> <local sha1> <remote ref> <remote sha1>`.
+
+This is a hook suitable to invokie some testing and build check.
+
+### pre-auto-gc
+
+Is used to do some checks before automatically cleaning repos.
+
+### pre-rebase
+
+Called when rebasing a branch. Mainly used to halt the rebase if it is not desirable.
+
+### applypatch-msg
+
+Can edit the commit message file and is often used to verify or actively format a patch's message to a project's standards.
+
+### pre-receive
+
+This is called on the remote repo just before updating the pushed refs.
+
+This is a common hook to enforce project coding standards by rejecting bad formed commits or suspicious user.
+
+### post-receive
+
+This is run on the remote when pushing after the all refs have been updated. It does not take parameters, but receives info through stdin in the form of <old-value> <new-value> <ref-name>.
+
+### post-rewrite
+
+This is called when git commands are rewriting already committed data.
 
