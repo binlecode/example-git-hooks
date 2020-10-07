@@ -105,9 +105,7 @@ config = YAML.load_file(CONFIG_FILE)   # yml => hash
 #todo: make these prefix (type) options externalized and reconfigurable
 #todo: follow types in: https://github.com/conventional-changelog/commitlint
 #todo: make regex pattern externalized and reconfigurable
-$regex = /^(ref|feat|fix|chore|docs): (\d+)/
-# $regex = /^(ref|feat|fix|chore|docs): KAN-(\d+)/
-
+$regex = Regexp.new(config["commit_msg_pattern"])
 caught = $regex.match(message)
 
 if !caught
