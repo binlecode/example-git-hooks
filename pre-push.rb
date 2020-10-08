@@ -12,7 +12,7 @@
 
 #todo: tranform script into a PrePushHookHandler class
 
-forbidden_branchs = ['main', 'master', 'dev']
+forbidden_branchs = ['main', 'master']
 
 def current_branch
   `git rev-parse --abbrev-ref HEAD`.chomp.downcase
@@ -31,20 +31,27 @@ def cmd_is_destructive?(command)
 end
 
 def current_command
-  $(ps -ocommand= -p $PPID)
+  `ps -ocommand= -p $PPID`.chomp
 end
   
+def print_err_msg(msg)
+  puts msg
+  puts "  If you REALLY know what you are doing, you can:"
+  puts "  git push <remote> <branch> --force --no-verify"
+end
 
 if forbidden_branchs.include? current_branch
-  puts "Error: push not allowed toward branch: #{current_branch}"
+  print_err_msg "Error: push not allowed toward branch: #{current_branch}"
   exit 1
 end
 
 if cmd_is_destructive? current_command
-  puts "Error: push is too dangerous to run with your commend: #{current_command}"
-  puts "  If you really know what you are doing, you can use:"
-  puts "  git push <remote> <branch> --force --no-verify"
+  print_err_msg "Error: push is too dangerous to run with your commend: #{current_command}"
   exit 1
 end
 
+
+puts "current command: #{current_command}"
+
+exit 1
 puts '*' * 20 + ' pre-push hook complete ' + '*' * 20
