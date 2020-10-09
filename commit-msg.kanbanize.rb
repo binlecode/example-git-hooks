@@ -4,7 +4,6 @@ require 'net/http'
 require 'json'
 require 'yaml'
 
-
 def prompt(*args)
   print(*args)
   # gets
