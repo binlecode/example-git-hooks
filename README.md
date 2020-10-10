@@ -50,7 +50,7 @@ For exmaple, a commit message check hook script `the commit-msg` file will need 
 the hook file is written in ruby but file should be without an extension to follow git hook file execution logic.
 
 "ref/feat/fix/chore then followed by ':' then a ticket number, then message"
-
+The above pattern can be configured as per user needs in commit-mesg.config file
 
 ## comment-msg kanbanize hook processing logic
 
