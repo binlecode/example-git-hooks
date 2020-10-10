@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
 
-#todo: build some git hook logic as pre-push validation
-
 # This hook is called with the following parameters:
 #
 # $1 -- Name of the remote to which the push is being done
@@ -10,7 +8,7 @@
 # hook_ctx = { :remote_name => ARGV[0], :remote_url => ARGV[1] }
 # puts hook_ctx.inspect
 
-#todo: tranform script into a PrePushHookHandler class
+#todo: tranform this script into a PrePushHookHandler class
 
 forbidden_branchs = ['main', 'master']
 
@@ -31,7 +29,8 @@ def cmd_is_destructive?(command)
 end
 
 def current_command
-  `ps -ocommand= -p $PPID`.chomp
+  ppid = Process.ppid
+  `ps -ocommand= -p #{ppid}`.chomp
 end
   
 def print_err_msg(msg)
@@ -46,12 +45,8 @@ if forbidden_branchs.include? current_branch
 end
 
 if cmd_is_destructive? current_command
-  print_err_msg "Error: push is too dangerous to run with your commend: #{current_command}"
+  print_err_msg "Error: push is too dangerous by your commend: #{current_command}"
   exit 1
 end
 
-
-puts "current command: #{current_command}"
-
-exit 1
 puts '*' * 20 + ' pre-push hook complete ' + '*' * 20
