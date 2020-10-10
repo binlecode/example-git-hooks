@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 
-#TODO:
-# - check current branch is not main or master branch
-# - check current branch name conforms to a defined naming pattern
+#TODO: check current branch name conforms to a defined naming pattern
 
 current_branch = `git rev-parse --abbrev-ref HEAD`.chomp
 
@@ -14,5 +12,3 @@ if forbidden_branches.include?(current_branch)
 end
 
 puts '*' * 20 + ' pre-commit hook complete ' + '*' * 20
-
-
