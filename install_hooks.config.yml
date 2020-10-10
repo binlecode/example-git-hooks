@@ -1,11 +1,13 @@
 
 # key: hook, value: source file name
 
-# pre-commit hook
+## pre-commit hook
 pre-commit: pre-commit.rb
-# commit-msg hook
-commit-msg: commit-msg.kanbanize.rb
-commit-msg.config: commit-msg.config
 
-# pre-push: pre-push.rb
+## commit-msg hook
+# commit-msg: commit-msg.kanbanize.rb
+# commit-msg.config: commit-msg.config
+
+## pre-push hook
+pre-push: pre-push.rb
 

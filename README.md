@@ -7,6 +7,8 @@
 install_hooks <target-repo-folder-path>
 ```
 
+This install script is taking configuration from [`install_hooks.config.yml`](./install_hooks.config.yml) file.
+
 ## remove git hooks
 
 ```bash
@@ -15,12 +17,11 @@ install_hooks --remove <target-repo-folder-path>
 
 The `--remove` option enables deletion of all installed (copied) hooks.
 
-
 ## supported git hooks
 
-- pre-commit hook to prevent commiting to main or master branch
-- commit-msg hook for kanbanize task validation and info fetch
-
+- `pre-commit` hook to prevent commiting to main or master branch
+- `commit-msg` hook for kanbanize task validation and info fetch
+- pre-push hook to prevent destructive push
 
 
 ## client side commit message check
@@ -30,6 +31,14 @@ The fact that users' commit pushes are rejected due to bad commit message format
 And furthermore, user will have to edit their history, the already commited change locally, to correct it. This isn’t always a walk in the park.
 
 Thus the need of some client-side git hooks that are automatically triggered at the time of user commit, and block the commit with the messsage that the server is likely to reject.
+
+
+## client side pre push check
+
+Read this blog to know more about this script:
+http://blog.bigbinary.com/2013/09/19/do-not-allow-force-push-to-master.html
+
+
 
 ## git hook script
 
