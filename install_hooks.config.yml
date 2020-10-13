@@ -2,7 +2,8 @@
 # key: hook, value: source file name
 
 ## pre-commit hook
-pre-commit: pre-commit.rb
+# pre-commit: pre-commit.rb
+pre-commit: pre-commit.filescan.sh
 
 ## commit-msg hook
 # commit-msg: commit-msg.kanbanize.rb
