@@ -65,7 +65,11 @@ Supported environment variables
 
 ## pre-commit hook processing logic
 
-A common use case of pre-commit hook is checking if current branch is not main or master.
+Common use cases of pre-commit hook
+- checking if current branch is not main or master
+- scan source code for
+  - TODO or FIXME tags, give warning or error depending on how strict the rule is
+  - TAB charactor, normally this should lead to a check error
 
 TODO:
 - check current branch name conforms to a defined naming pattern
