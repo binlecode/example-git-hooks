@@ -5,35 +5,42 @@
 
 
 TODO_FOUND="no"
-FIXME_FOUND="yes"
+
+# -E using extended regular expression
+# -i case insensitive
+# -r recursive
 
 TODO_OFFENDING_FILES=$(
-    grep -irE "(TODO)" ./* |
+    grep -irE "(TODO|FIXME)" ./* |
         tr ':' ' ' | awk '{ print $1 }' |
         sort | uniq
 )
 
 for WITH_TODO in $TODO_OFFENDING_FILES; do
-    echo "! TODO found in: $WITH_TODO"
+    echo "! TODO or FIXME found in: $WITH_TODO"
     TODO_FOUND="yes"
 done
 
-
-FIXME_OFFENDING_FILES=$(
-    grep -irE "(FIXME)" ./* |
+TAB_FOUND="no"
+TAB_OFFENDING_FILES=$(
+    grep -r "$(printf '\t')" ./* |
         tr ':' ' ' | awk '{ print $1 }' |
         sort | uniq
 )
 
-for WITH_FIXME in $FIXME_OFFENDING_FILES; do
-    echo "! FIXME found in: $WITH_FIXME"
+for WITH_TAB in $TAB_OFFENDING_FILES; do
+    echo "! TAB found in: $WITH_TAB"
     FIXME_FOUND="yes"
 done
 
-# TODO is ok, FIXME is not ok
+# TODO and FIXME is ok, TAB is not ok !
+if [ "$TODO_FOUND" = "no" ]; then
+    echo "* No TODO or FIXME detected - you are lucky this time..."
+fi
 
-if [ "$FIXME_FOUND" = "no" ]; then
-    echo "* No FIXME detected"
+if [ "$TAB_FOUND" = "no" ]; then
+    echo "* No TAB detected - you are lucky this time..."
 else
+    echo "! TAB in source code is NO GO!"
     exit 1
 fi
