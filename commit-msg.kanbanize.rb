@@ -19,9 +19,9 @@ def post_kan_api(kan_url, apikey, params = {})
   uri = URI(kan_url)
   req = Net::HTTP::Post.new(uri)
   req['Content-Type'] = 'application/json'
-  req[:Accept] = 'application/json'
+  req['Accept'] = 'application/json'
   if apikey
-    req[:apikey] = apikey
+    req['apikey'] = apikey
   end
   req.body = params.to_json
   
@@ -31,8 +31,8 @@ def post_kan_api(kan_url, apikey, params = {})
     http.request(req)
   }
   
-  puts ">> http resp code #{res.code}"
-  puts ">> http resp body #{res.body}"
+  # puts ">> http resp code #{res.code}"
+  # puts ">> http resp body #{res.body}"
   return res
 end
 
@@ -42,7 +42,7 @@ def auth_apikey(config, secret)
     pswd = (prompt "Please input password: ").chomp
   
     auth_res = post_kan_api(
-      config[:kan_api_url].sub('<domain>', secret[:domain]) + config[:kan_api_auth],
+      config['kan_api_url'].sub('<domain>', secret['domain']) + config['kan_api_auth'],
       nil,
       { :email => email, :pass => pswd }
     )
@@ -134,18 +134,18 @@ end
 
 # resolve kanbanize domain for API and web urls
 # secret domain is optional, env vars can be used instead
-domain = ENV[config[:env_var_kan_api_domain_name]] || secret[:domain]
+domain = ENV[config['env_var_kan_api_domain_name']] || secret['domain']
 # ask to input domain if not yet set
 unless domain
   domain = (prompt "Input kanbanize domain: ").chomp
-  secret[:domain] = domain
+  secret['domain'] = domain
   File.open(SECRET_FILE, 'w') { |f| f.write(secret.to_yaml)}
 end
 
 
 # obtain kanbanize api key
 # try env var first then secret file
-apikey = ENV[config[:env_var_kan_api_key_name]] || secret[:apikey]
+apikey = ENV[config['env_var_kan_api_key_name']] || secret['apikey']
 
 # resolve api key if not available from external source
 unless apikey
@@ -159,7 +159,7 @@ end
 ## ** Kanbanize API call
 
 res = post_kan_api(
-    config[:kan_api_url].sub('<domain>', domain) + config[:kan_api_get_task_details],
+    config['kan_api_url'].sub('<domain>', domain) + config['kan_api_get_task_details'],
     apikey,
     { :taskid => tkt_nbr }
 )
@@ -174,7 +174,7 @@ if res.code == '401'
 
   # retry api call with updated api key
   res = post_kan_api(
-    config[:kan_api_url].sub('<domain>', domain) + config[:kan_api_get_task_details],
+    config['kan_api_url'].sub('<domain>', domain) + config['kan_api_get_task_details'],
     apikey,
     { :taskid => tkt_nbr }
   )
@@ -192,7 +192,7 @@ end
 
 # at this point the kanbanize task check is successful
 # update secret file with correct api key
-secret[:apikey] = apikey
+secret['apikey'] = apikey
 File.open(SECRET_FILE, 'w') { |f| f.write(secret.to_yaml)}
 puts ">> secret file saved"
 
@@ -203,10 +203,10 @@ puts ">> secret file saved"
 
 rb = JSON.parse(res.body)
 
-kan_task_web_url = config[:kan_web_url_task]
+kan_task_web_url = config['kan_web_url_task']
     .sub('<domain>', domain)
-    .sub('<boardid>', rb[:boardid])
-    .sub('<taskid>', rb[:taskid])
+    .sub('<boardid>', rb['boardid'])
+    .sub('<taskid>', rb['taskid'])
 
 tkt_web_url_msg = "\nKanbanize Ticket #{tkt_nbr} URL: #{kan_task_web_url}\n"
 puts "Appending web url to message:#{tkt_web_url_msg}"
