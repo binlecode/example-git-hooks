@@ -31,8 +31,8 @@ def post_kan_api(kan_url, apikey, params = {})
     http.request(req)
   }
   
-  puts ">> http resp code #{res.code}"
-  puts ">> http resp body #{res.body}"
+  # puts ">> http resp code #{res.code}"
+  # puts ">> http resp body #{res.body}"
   return res
 end
 
